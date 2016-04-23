@@ -60,6 +60,15 @@
     <Reference Include="FakeLib">
       <HintPath>..\..\packages\FAKE.4.22.8\tools\FakeLib.dll</HintPath>
     </Reference>
+    <Reference Include="FSharpAssemblyInfoUtils">
+      <HintPath>..\..\packages\FSharp.AssemblyVersion.Utils.0.1.1\tools\FSharpAssemblyInfoUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharpFilePathUtils">
+      <HintPath>..\..\packages\FSharp.FilePath.Utils.0.1.0\tools\FSharpFilePathUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharpVersionUtils">
+      <HintPath>..\..\packages\FSharp.Version.Utils.0.1.0\tools\FSharpVersionUtils.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
