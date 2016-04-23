@@ -1,6 +1,8 @@
 ﻿namespace datNET
 
 module Targets =
+  open datNET.Version
+  open datNET.AssemblyInfo
   open Fake
   open Fake.FileSystem
   open Fake.FileSystemHelper
@@ -9,6 +11,9 @@ module Targets =
   open System.IO
 
   let private RootDir = Directory.GetCurrentDirectory()
+
+  // TODO: Unhardcode this ASAP
+  let private _AssemblyInfoFilePath = System.IO.Path.Combine(RootDir, "AssemblyInfo.fs");
 
   type ConfigParams =
     {
@@ -95,16 +100,34 @@ module Targets =
 
   let private _IncrementPatchTarget parameters =
     _CreateTarget "IncrementPatch" parameters (fun _ ->
-        printfn "%O" "TODO"
+        let currentVersion = datNET.AssemblyInfo.GetAssemblyInformationalVersionString _AssemblyInfoFilePath
+        let nextVersion = datNET.Version.IncrPatch currentVersion
+        let nextFourVersion = (datNET.Version.CoerceStringToFourVersion nextVersion).ToString()
+        let contents = (System.IO.File.ReadAllText(_AssemblyInfoFilePath))
+
+        let ugh setVersion versionStr cntnts =
+          setVersion cntnts versionStr
+          |> (fun (strSeq: seq<string>) -> String.Join("\n", strSeq))
+
+        let newContents =
+            contents
+            |> ugh datNET.AssemblyInfo.SetAssemblyVersion nextFourVersion
+            |> ugh datNET.AssemblyInfo.SetAssemblyFileVersion nextFourVersion
+            |> ugh datNET.AssemblyInfo.SetAssemblyInformationalVersion nextVersion
+            //|> (fun c -> datNET.AssemblyInfo.SetAssemblyVersion c nextFourVersion)
+            //|> (fun c -> datNET.AssemblyInfo.SetAssemblyFileVersion c nextFourVersion)
+            //|> (fun c -> datNET.AssemblyInfo.SetAssemblyFileVersion c nextVersion)
+
+        System.IO.File.WriteAllText(_AssemblyInfoFilePath, newContents)
     )
 
   let private _IncrementMinorTarget parameters =
-    _CreateTarget "IncrementPatch" parameters (fun _ ->
+    _CreateTarget "IncrementMinor" parameters (fun _ ->
         printfn "%O" "TODO"
     )
 
   let private _IncrementMajorTarget parameters =
-    _CreateTarget "IncrementPatch" parameters (fun _ ->
+    _CreateTarget "IncrementMajor" parameters (fun _ ->
         printfn "%O" "TODO"
     )
 
