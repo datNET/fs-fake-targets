@@ -93,6 +93,21 @@ module Targets =
         NuGetPublish (_CreateNuGetParams parameters)
     )
 
+  let private _IncrementPatchTarget parameters =
+    _CreateTarget "IncrementPatch" parameters (fun _ ->
+        printfn "%O" "TODO"
+    )
+
+  let private _IncrementMinorTarget parameters =
+    _CreateTarget "IncrementPatch" parameters (fun _ ->
+        printfn "%O" "TODO"
+    )
+
+  let private _IncrementMajorTarget parameters =
+    _CreateTarget "IncrementPatch" parameters (fun _ ->
+        printfn "%O" "TODO"
+    )
+
   let Initialize setParams =
     let parameters = ConfigDefaults() |> setParams
 
@@ -101,3 +116,6 @@ module Targets =
         |> _CleanTarget
         |> _PackageTarget
         |> _PublishTarget
+        |> _IncrementPatchTarget
+        |> _IncrementMinorTarget
+        |> _IncrementMajorTarget
