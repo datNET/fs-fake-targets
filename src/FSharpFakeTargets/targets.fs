@@ -3,10 +3,10 @@
 module Targets =
   open Fake
   open Fake.FileSystem
-  open System.IO
-  open System
   open Fake.FileSystemHelper
   open Fake.NuGetHelper
+  open System
+  open System.IO
 
   let private RootDir = Directory.GetCurrentDirectory()
 
