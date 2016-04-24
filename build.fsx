@@ -4,11 +4,22 @@
 #load @"./._fake/loader.fsx"
 
 open Fake
-open NuGetHelper
 open RestorePackageHelper
 open datNET.Fake.Config
 
-datNET.Targets.Initialize id
+let private _OverrideConfig (parameters : datNET.Targets.ConfigParams) =
+      { parameters with
+          Version = Release.Version
+          Project = Release.Project
+          Authors = Release.Authors
+          Description = Release.Description
+          WorkingDir = Release.WorkingDir
+          OutputPath = Release.OutputPath
+          Publish = true
+          AccessKey = Nuget.ApiKey
+      }
+
+datNET.Targets.Initialize _OverrideConfig
 
 Target "RestorePackages" (fun _ ->
   Source.SolutionFile
@@ -27,27 +38,9 @@ Target "Test" (fun _ ->
   Build.TestAssemblies |> NUnit setParams
 )
 
-Target "CreateNugetPackageDirPath" (fun _ ->
-  CreateDir Nuget.PackageDirName
-)
-
-Target "PackageAndPublish" (fun _ ->
-  Release.Nuspec
-    |> NuGet (fun p ->
-        { p with
-            Version     = Release.Version
-            Project     = Release.Project
-            Authors     = Release.Authors
-            Description = Release.Description
-            OutputPath  = Release.OutputPath
-            WorkingDir  = Release.WorkingDir
-            Publish     = true
-            AccessKey   = Nuget.ApiKey
-        })
-)
-
 "MSBuild"           <== [ "Clean"; "RestorePackages" ]
 "Test"              <== [ "MSBuild" ]
-"PackageAndPublish" <== [ "MSBuild"; "CreateNugetPackageDirPath" ]
+"Package"           <== [ "MSBuild" ]
+"Publish"           <== [ "Package" ]
 
 RunTargetOrDefault "MSBuild"
