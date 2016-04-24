@@ -61,7 +61,7 @@
       <HintPath>..\..\packages\FAKE.4.22.8\tools\FakeLib.dll</HintPath>
     </Reference>
     <Reference Include="FSharpAssemblyInfoUtils">
-      <HintPath>..\..\packages\FSharp.AssemblyVersion.Utils.0.1.1\tools\FSharpAssemblyInfoUtils.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.AssemblyVersion.Utils.0.1.2\tools\FSharpAssemblyInfoUtils.dll</HintPath>
     </Reference>
     <Reference Include="FSharpFilePathUtils">
       <HintPath>..\..\packages\FSharp.FilePath.Utils.0.1.0\tools\FSharpFilePathUtils.dll</HintPath>
