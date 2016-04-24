@@ -99,7 +99,7 @@ module Targets =
     )
 
 
-  let private _VersioningTargets parameters =
+  let private _RootAssemblyInfoVersioningTargets parameters =
     let _IncrementAssemblyInfo incrFn =
       let currentSemVer = GetAssemblyInformationalVersionString _AssemblyInfoFilePath
       let nextSemVer = incrFn currentSemVer
@@ -117,17 +117,17 @@ module Targets =
       |> fun str -> File.WriteAllText(_AssemblyInfoFilePath, str)
 
     let _IncrementPatchTarget parameters =
-      _CreateTarget "IncrementPatch" parameters (fun _ ->
+      _CreateTarget "IncrementPatch:RootAssemblyInfo" parameters (fun _ ->
           _IncrementAssemblyInfo datNET.Version.IncrPatch
       )
 
     let _IncrementMinorTarget parameters =
-      _CreateTarget "IncrementMinor" parameters (fun _ ->
+      _CreateTarget "IncrementMinor:RootAssemblyInfo" parameters (fun _ ->
           _IncrementAssemblyInfo datNET.Version.IncrMinor
       )
 
     let _IncrementMajorTarget parameters =
-      _CreateTarget "IncrementMajor" parameters (fun _ ->
+      _CreateTarget "IncrementMajor:RootAssemblyInfo" parameters (fun _ ->
           _IncrementAssemblyInfo datNET.Version.IncrMajor
       )
 
@@ -144,4 +144,4 @@ module Targets =
         |> _CleanTarget
         |> _PackageTarget
         |> _PublishTarget
-        |> _VersioningTargets
+        |> _RootAssemblyInfoVersioningTargets
