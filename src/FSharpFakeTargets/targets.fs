@@ -11,6 +11,7 @@ module Targets =
   open System.IO
 
   let private RootDir = Directory.GetCurrentDirectory()
+  let private AssemblyInfoFilePath = Path.Combine(RootDir, "AssemblyInfo.fs");
 
   type ConfigParams =
     {
@@ -19,7 +20,7 @@ module Targets =
       MSBuildReleaseArtifacts : FileIncludes
       MSBuildOutputDir : string
       NuspecFilePath : Option<string>
-      Version : string
+      AssemblyInfoFilePath : string
       Project : string
       Authors : string list
       Description : string
@@ -36,7 +37,7 @@ module Targets =
       MSBuildReleaseArtifacts = !! "**/bin/Release/*"
       MSBuildOutputDir = "bin"
       NuspecFilePath = TryFindFirstMatchingFile "*.nuspec" "."
-      Version = String.Empty
+      AssemblyInfoFilePath = AssemblyInfoFilePath
       Project = String.Empty
       Authors = List.Empty
       Description = String.Empty
@@ -58,7 +59,7 @@ module Targets =
   let private _CreateNuGetParams parameters =
     (fun (nugetParams : NuGetParams) ->
         { nugetParams with
-            Version = parameters.Version
+            Version = GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath
             Project = parameters.Project
             Authors = parameters.Authors
             Description = parameters.Description
@@ -95,16 +96,13 @@ module Targets =
         NuGetPublish (_CreateNuGetParams parameters)
     )
 
-
   let private _RootAssemblyInfoVersioningTargets parameters =
-    // FIXME: The fact that this is hardcoded is not great...
-    let _AssemblyInfoFilePath = Path.Combine(RootDir, "AssemblyInfo.fs")
-
+    
     let _IncrementAssemblyInfo incrFn =
-      let currentSemVer = GetAssemblyInformationalVersionString _AssemblyInfoFilePath
+      let currentSemVer = GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath
       let nextSemVer = incrFn currentSemVer
       let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
-      let aiContents = File.ReadAllText(_AssemblyInfoFilePath)
+      let aiContents = File.ReadAllText(parameters.AssemblyInfoFilePath)
 
       // FIXME: This mostly exists because Set*Version from AssemblyInfoUtils
       // returns a seq<string>, as opposed to just a string, which is what we
@@ -117,7 +115,7 @@ module Targets =
       |> pipeShim SetAssemblyVersion nextFullVer
       |> pipeShim SetAssemblyFileVersion nextFullVer
       |> pipeShim SetAssemblyInformationalVersion nextSemVer
-      |> fun str -> File.WriteAllText(_AssemblyInfoFilePath, str)
+      |> fun str -> File.WriteAllText(parameters.AssemblyInfoFilePath, str)
 
     let _IncrementPatchTarget parameters =
       _CreateTarget "IncrementPatch:RootAssemblyInfo" parameters (fun _ ->
