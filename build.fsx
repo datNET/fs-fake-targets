@@ -9,7 +9,6 @@ open datNET.Fake.Config
 
 let private _OverrideConfig (parameters : datNET.Targets.ConfigParams) =
       { parameters with
-          Version = Release.Version
           Project = Release.Project
           Authors = Release.Authors
           Description = Release.Description

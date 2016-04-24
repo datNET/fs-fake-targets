@@ -28,7 +28,6 @@ module Release =
   let Items = !! "**/bin/Release/*"
   let Nuspec = "FsharpFakeTargets.nuspec"
 
-  let Version = "0.4.1"
   let Project = "FSharp.FakeTargets"
   let Authors = [ "Andrew Seward"; "Mathew Glodack" ]
   let Description = "Basic FAKE targets to get your project up and running ASAP"
