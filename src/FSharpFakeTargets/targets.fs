@@ -98,37 +98,35 @@ module Targets =
         NuGetPublish (_CreateNuGetParams parameters)
     )
 
+  let private _IncrementAssemblyInfo incrFn =
+    let currentSemVer = GetAssemblyInformationalVersionString _AssemblyInfoFilePath
+    let nextSemVer = incrFn currentSemVer
+    let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
+    let aiContents = File.ReadAllText(_AssemblyInfoFilePath)
+
+    let pipeShim setVersion value fileContents =
+      setVersion fileContents value
+      |> fun (strSeq: seq<string>) -> String.Join(Environment.NewLine, strSeq)
+
+    aiContents
+    |> pipeShim SetAssemblyVersion nextFullVer
+    |> pipeShim SetAssemblyFileVersion nextFullVer
+    |> pipeShim SetAssemblyInformationalVersion nextSemVer
+    |> fun str -> File.WriteAllText(_AssemblyInfoFilePath, str)
+
   let private _IncrementPatchTarget parameters =
     _CreateTarget "IncrementPatch" parameters (fun _ ->
-        let currentVersion = datNET.AssemblyInfo.GetAssemblyInformationalVersionString _AssemblyInfoFilePath
-        let nextVersion = datNET.Version.IncrPatch currentVersion
-        let nextFourVersion = (datNET.Version.CoerceStringToFourVersion nextVersion).ToString()
-        let contents = (System.IO.File.ReadAllText(_AssemblyInfoFilePath))
-
-        let ugh setVersion versionStr cntnts =
-          setVersion cntnts versionStr
-          |> (fun (strSeq: seq<string>) -> String.Join("\n", strSeq))
-
-        let newContents =
-            contents
-            |> ugh datNET.AssemblyInfo.SetAssemblyVersion nextFourVersion
-            |> ugh datNET.AssemblyInfo.SetAssemblyFileVersion nextFourVersion
-            |> ugh datNET.AssemblyInfo.SetAssemblyInformationalVersion nextVersion
-            //|> (fun c -> datNET.AssemblyInfo.SetAssemblyVersion c nextFourVersion)
-            //|> (fun c -> datNET.AssemblyInfo.SetAssemblyFileVersion c nextFourVersion)
-            //|> (fun c -> datNET.AssemblyInfo.SetAssemblyFileVersion c nextVersion)
-
-        System.IO.File.WriteAllText(_AssemblyInfoFilePath, newContents)
+        _IncrementAssemblyInfo datNET.Version.IncrPatch
     )
 
   let private _IncrementMinorTarget parameters =
     _CreateTarget "IncrementMinor" parameters (fun _ ->
-        printfn "%O" "TODO"
+        _IncrementAssemblyInfo datNET.Version.IncrMinor
     )
 
   let private _IncrementMajorTarget parameters =
     _CreateTarget "IncrementMajor" parameters (fun _ ->
-        printfn "%O" "TODO"
+        _IncrementAssemblyInfo datNET.Version.IncrMajor
     )
 
   let Initialize setParams =
