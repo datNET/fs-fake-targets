@@ -11,5 +11,8 @@
   </metadata>
   <files>
     <file src="FSharpFakeTargets.dll" target="tools" />
+    <file src="FSharpAssemblyInfoUtils.dll" target="tools" />
+    <file src="FSharpFilePathUtils.dll" target="tools" />
+    <file src="FSharpVersionUtils.dll" target="tools" />
   </files>
 </package>
