@@ -12,9 +12,6 @@ module Targets =
 
   let private RootDir = Directory.GetCurrentDirectory()
 
-  // TODO: Unhardcode this ASAP
-  let private _AssemblyInfoFilePath = System.IO.Path.Combine(RootDir, "AssemblyInfo.fs");
-
   type ConfigParams =
     {
       SolutionFile : FileIncludes
@@ -100,12 +97,18 @@ module Targets =
 
 
   let private _RootAssemblyInfoVersioningTargets parameters =
+    // FIXME: The fact that this is hardcoded is not great...
+    let _AssemblyInfoFilePath = Path.Combine(RootDir, "AssemblyInfo.fs")
+
     let _IncrementAssemblyInfo incrFn =
       let currentSemVer = GetAssemblyInformationalVersionString _AssemblyInfoFilePath
       let nextSemVer = incrFn currentSemVer
       let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
       let aiContents = File.ReadAllText(_AssemblyInfoFilePath)
 
+      // FIXME: This mostly exists because Set*Version from AssemblyInfoUtils
+      // returns a seq<string>, as opposed to just a string, which is what we
+      // would actually want here.
       let pipeShim setVersion value fileContents =
         setVersion fileContents value
         |> fun (strSeq: seq<string>) -> String.Join(Environment.NewLine, strSeq)
