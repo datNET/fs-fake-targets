@@ -32,5 +32,5 @@ module Release =
   let Project = "FSharp.FakeTargets"
   let Authors = [ "Andrew Seward"; "Mathew Glodack" ]
   let Description = "Basic FAKE targets to get your project up and running ASAP"
-  let OutputPath = Nuget.PackageDirName
   let WorkingDir = "bin"
+  let OutputPath = WorkingDir
