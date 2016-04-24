@@ -98,36 +98,43 @@ module Targets =
         NuGetPublish (_CreateNuGetParams parameters)
     )
 
-  let private _IncrementAssemblyInfo incrFn =
-    let currentSemVer = GetAssemblyInformationalVersionString _AssemblyInfoFilePath
-    let nextSemVer = incrFn currentSemVer
-    let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
-    let aiContents = File.ReadAllText(_AssemblyInfoFilePath)
 
-    let pipeShim setVersion value fileContents =
-      setVersion fileContents value
-      |> fun (strSeq: seq<string>) -> String.Join(Environment.NewLine, strSeq)
+  let private _VersioningTargets parameters =
+    let _IncrementAssemblyInfo incrFn =
+      let currentSemVer = GetAssemblyInformationalVersionString _AssemblyInfoFilePath
+      let nextSemVer = incrFn currentSemVer
+      let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
+      let aiContents = File.ReadAllText(_AssemblyInfoFilePath)
 
-    aiContents
-    |> pipeShim SetAssemblyVersion nextFullVer
-    |> pipeShim SetAssemblyFileVersion nextFullVer
-    |> pipeShim SetAssemblyInformationalVersion nextSemVer
-    |> fun str -> File.WriteAllText(_AssemblyInfoFilePath, str)
+      let pipeShim setVersion value fileContents =
+        setVersion fileContents value
+        |> fun (strSeq: seq<string>) -> String.Join(Environment.NewLine, strSeq)
 
-  let private _IncrementPatchTarget parameters =
-    _CreateTarget "IncrementPatch" parameters (fun _ ->
-        _IncrementAssemblyInfo datNET.Version.IncrPatch
-    )
+      aiContents
+      |> pipeShim SetAssemblyVersion nextFullVer
+      |> pipeShim SetAssemblyFileVersion nextFullVer
+      |> pipeShim SetAssemblyInformationalVersion nextSemVer
+      |> fun str -> File.WriteAllText(_AssemblyInfoFilePath, str)
 
-  let private _IncrementMinorTarget parameters =
-    _CreateTarget "IncrementMinor" parameters (fun _ ->
-        _IncrementAssemblyInfo datNET.Version.IncrMinor
-    )
+    let _IncrementPatchTarget parameters =
+      _CreateTarget "IncrementPatch" parameters (fun _ ->
+          _IncrementAssemblyInfo datNET.Version.IncrPatch
+      )
 
-  let private _IncrementMajorTarget parameters =
-    _CreateTarget "IncrementMajor" parameters (fun _ ->
-        _IncrementAssemblyInfo datNET.Version.IncrMajor
-    )
+    let _IncrementMinorTarget parameters =
+      _CreateTarget "IncrementMinor" parameters (fun _ ->
+          _IncrementAssemblyInfo datNET.Version.IncrMinor
+      )
+
+    let _IncrementMajorTarget parameters =
+      _CreateTarget "IncrementMajor" parameters (fun _ ->
+          _IncrementAssemblyInfo datNET.Version.IncrMajor
+      )
+
+    parameters
+    |> _IncrementPatchTarget
+    |> _IncrementMinorTarget
+    |> _IncrementMajorTarget
 
   let Initialize setParams =
     let parameters = ConfigDefaults() |> setParams
@@ -137,6 +144,4 @@ module Targets =
         |> _CleanTarget
         |> _PackageTarget
         |> _PublishTarget
-        |> _IncrementPatchTarget
-        |> _IncrementMinorTarget
-        |> _IncrementMajorTarget
+        |> _VersioningTargets
