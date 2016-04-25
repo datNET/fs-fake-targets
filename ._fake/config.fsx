@@ -17,7 +17,7 @@ module Source =
 module Build =
   let TestAssemblies = !! "tests/**/*.Tests.dll" -- "**/obj/**/*.Tests.dll"
   let DotNetVersion = "4.5"
-  let MSBuildArtifacts = !! "**/bin/**/*.*" ++ "**/obj/**/*.*"
+  let MSBuildArtifacts = !! "src/**/bin/**/*.*" ++ "src/**/obj/**/*.*"
 
 module Nuget =
   let ApiEnvVar = "DAT_NET_NUGET_API_KEY"
