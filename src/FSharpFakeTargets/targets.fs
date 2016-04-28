@@ -139,6 +139,11 @@ module Targets =
     |> _IncrementMinorTarget
     |> _IncrementMajorTarget
 
+  let private _VersionTarget parameters =
+    _CreateTarget "Version" parameters (fun _ ->
+        tracefn "Current Version: %s" (GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath)
+    )
+
   let Initialize setParams =
     let parameters = ConfigDefaults() |> setParams
 
@@ -148,3 +153,4 @@ module Targets =
         |> _PackageTarget
         |> _PublishTarget
         |> _RootAssemblyInfoVersioningTargets
+        |> _VersionTarget
