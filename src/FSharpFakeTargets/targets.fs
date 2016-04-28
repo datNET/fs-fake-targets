@@ -97,25 +97,27 @@ module Targets =
     )
 
   let private _RootAssemblyInfoVersioningTargets parameters =
-    
+    let versionAttributeName = "AssemblyInformationalVersion"
+    let assemblyInfoFile = parameters.AssemblyInfoFilePath
+
     let _IncrementAssemblyInfo incrFn =
-      let currentSemVer = GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath
+      let currentSemVer =
+        match (AssemblyInfoFile.GetAttributeValue versionAttributeName parameters.AssemblyInfoFilePath) with
+        | Some v -> v.Trim [|'"'|] // This util returns the string with actual " characters around it, so we have to strip them.
+        | None _ ->
+          let errorMessage = sprintf "Error: missing attribute `%s` in %s" versionAttributeName assemblyInfoFile
+          traceError errorMessage
+          exit 1
+
       let nextSemVer = incrFn currentSemVer
       let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
-      let aiContents = File.ReadAllText(parameters.AssemblyInfoFilePath)
 
-      // FIXME: This mostly exists because Set*Version from AssemblyInfoUtils
-      // returns a seq<string>, as opposed to just a string, which is what we
-      // would actually want here.
-      let pipeShim setVersion value fileContents =
-        setVersion fileContents value
-        |> fun (strSeq: seq<string>) -> String.Join(Environment.NewLine, strSeq)
-
-      aiContents
-      |> pipeShim SetAssemblyVersion nextFullVer
-      |> pipeShim SetAssemblyFileVersion nextFullVer
-      |> pipeShim SetAssemblyInformationalVersion nextSemVer
-      |> fun str -> File.WriteAllText(parameters.AssemblyInfoFilePath, str)
+      AssemblyInfoFile.UpdateAttributes parameters.AssemblyInfoFilePath
+        [|
+            AssemblyInfoFile.Attribute.Version nextFullVer ;
+            AssemblyInfoFile.Attribute.FileVersion nextFullVer ;
+            AssemblyInfoFile.Attribute.InformationalVersion nextSemVer ;
+        |]
 
     let _IncrementPatchTarget parameters =
       _CreateTarget "IncrementPatch:RootAssemblyInfo" parameters (fun _ ->
