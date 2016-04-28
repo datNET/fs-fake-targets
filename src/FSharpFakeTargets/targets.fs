@@ -97,12 +97,18 @@ module Targets =
     )
 
   let private _RootAssemblyInfoVersioningTargets parameters =
-    let currentSemVer =
-      match (AssemblyInfoFile.GetAttributeValue "AssemblyInformationalVersion" parameters.AssemblyInfoFilePath) with
-      | Some v -> v.Trim [|'"'|] // This util returns the string with actual " characters around it, so we have to strip them.
-      | None _ -> "0.0.0"
+    let versionAttributeName = "AssemblyInformationalVersion"
+    let assemblyInfoFile = parameters.AssemblyInfoFilePath
 
     let _IncrementAssemblyInfo incrFn =
+      let currentSemVer =
+        match (AssemblyInfoFile.GetAttributeValue versionAttributeName parameters.AssemblyInfoFilePath) with
+        | Some v -> v.Trim [|'"'|] // This util returns the string with actual " characters around it, so we have to strip them.
+        | None _ ->
+          let errorMessage = sprintf "Error: missing attribute `%s` in %s" versionAttributeName assemblyInfoFile
+          traceError errorMessage
+          exit 1
+
       let nextSemVer = incrFn currentSemVer
       let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
 
