@@ -97,25 +97,21 @@ module Targets =
     )
 
   let private _RootAssemblyInfoVersioningTargets parameters =
-    
+    let currentSemVer =
+      match (AssemblyInfoFile.GetAttributeValue "AssemblyInformationalVersion" parameters.AssemblyInfoFilePath) with
+      | Some v -> v
+      | None _ -> "0.0.0"
+
     let _IncrementAssemblyInfo incrFn =
-      let currentSemVer = GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath
       let nextSemVer = incrFn currentSemVer
       let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
-      let aiContents = File.ReadAllText(parameters.AssemblyInfoFilePath)
 
-      // FIXME: This mostly exists because Set*Version from AssemblyInfoUtils
-      // returns a seq<string>, as opposed to just a string, which is what we
-      // would actually want here.
-      let pipeShim setVersion value fileContents =
-        setVersion fileContents value
-        |> fun (strSeq: seq<string>) -> String.Join(Environment.NewLine, strSeq)
-
-      aiContents
-      |> pipeShim SetAssemblyVersion nextFullVer
-      |> pipeShim SetAssemblyFileVersion nextFullVer
-      |> pipeShim SetAssemblyInformationalVersion nextSemVer
-      |> fun str -> File.WriteAllText(parameters.AssemblyInfoFilePath, str)
+      AssemblyInfoFile.UpdateAttributes parameters.AssemblyInfoFilePath
+        [|
+            AssemblyInfoFile.Attribute.Version nextFullVer ;
+            AssemblyInfoFile.Attribute.FileVersion nextFullVer ;
+            AssemblyInfoFile.Attribute.InformationalVersion nextSemVer ;
+        |]
 
     let _IncrementPatchTarget parameters =
       _CreateTarget "IncrementPatch:RootAssemblyInfo" parameters (fun _ ->
