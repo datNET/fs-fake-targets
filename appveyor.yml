@@ -1,4 +1,4 @@
 version: 1.0.{build}
 os: Visual Studio 2015
-build: off
-test_script: .\fake.bat test
+build_script: .\fake.bat msbuild
+test: off
