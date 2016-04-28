@@ -99,7 +99,7 @@ module Targets =
   let private _RootAssemblyInfoVersioningTargets parameters =
     let currentSemVer =
       match (AssemblyInfoFile.GetAttributeValue "AssemblyInformationalVersion" parameters.AssemblyInfoFilePath) with
-      | Some v -> v
+      | Some v -> v.Trim [|'"'|] // This util returns the string with actual " characters around it, so we have to strip them.
       | None _ -> "0.0.0"
 
     let _IncrementAssemblyInfo incrFn =
