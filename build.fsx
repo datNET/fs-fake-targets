@@ -25,16 +25,9 @@ Target "RestorePackages" (fun _ ->
   |> Seq.head
   |> RestoreMSSolutionPackages (fun p ->
       { p with
-          Sources = [ "https://nuget.org/api/v2"; ]
+          Sources = [ "https://nuget.org/api/v2" ]
           OutputPath = "packages"
           Retries = 4 })
-)
-
-Target "Test" (fun _ ->
-  let setParams = (fun p ->
-    { p with DisableShadowCopy = true; ErrorLevel = DontFailBuild; Framework = Build.DotNetVersion; })
-
-  Build.TestAssemblies |> NUnit setParams
 )
 
 "MSBuild"           <== [ "Clean"; "RestorePackages" ]
