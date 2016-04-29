@@ -19,6 +19,8 @@ module Targets =
       MSBuildArtifacts : FileIncludes
       MSBuildReleaseArtifacts : FileIncludes
       MSBuildOutputDir : string
+      TestAssemblies : FileIncludes
+      DotNetVersion : string
       NuspecFilePath : Option<string>
       AssemblyInfoFilePath : string
       Project : string
@@ -36,6 +38,8 @@ module Targets =
       MSBuildArtifacts = !! "src/**/bin/**/*.*" ++ "src/**/obj/**/*.*"
       MSBuildReleaseArtifacts = !! "**/bin/Release/*"
       MSBuildOutputDir = "bin"
+      TestAssemblies = !! "tests/**/*.Tests.dll" -- "**/obj/**/*.Tests.dll"
+      DotNetVersion = "4.0"
       NuspecFilePath = TryFindFirstMatchingFile "*.nuspec" "."
       AssemblyInfoFilePath = AssemblyInfoFilePath
       Project = String.Empty
@@ -82,6 +86,23 @@ module Targets =
     _CreateTarget "Clean" parameters (fun _ ->
         DeleteFiles parameters.MSBuildArtifacts
         CleanDir parameters.MSBuildOutputDir
+    )
+
+  let private _TestTarget parameters =
+    _CreateTarget "Test" parameters (fun _ ->
+        let
+          {
+            DotNetVersion = dotNET;
+            TestAssemblies = tests;
+          } = parameters
+        let run = NUnit (fun p ->
+          { p with
+              DisableShadowCopy = true
+              ErrorLevel = DontFailBuild
+              Framework = dotNET
+          })
+
+        run tests
     )
 
   let private _PackageTarget parameters =
@@ -151,6 +172,7 @@ module Targets =
         |> _MSBuildTarget
         |> _CleanTarget
         |> _PackageTarget
+        |> _TestTarget
         |> _PublishTarget
         |> _RootAssemblyInfoVersioningTargets
         |> _VersionTarget
