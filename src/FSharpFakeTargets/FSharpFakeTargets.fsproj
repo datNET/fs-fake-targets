@@ -9,10 +9,11 @@
     <OutputType>Library</OutputType>
     <RootNamespace>FSharpFakeTargets</RootNamespace>
     <AssemblyName>FSharpFakeTargets</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>FSharpFakeTargets</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -61,15 +62,15 @@
       <HintPath>..\..\packages\FAKE.4.22.8\tools\FakeLib.dll</HintPath>
     </Reference>
     <Reference Include="FSharpAssemblyInfoUtils">
-      <HintPath>..\..\packages\FSharp.AssemblyVersion.Utils.0.2.0\lib\net45\FSharpAssemblyInfoUtils.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.AssemblyVersion.Utils.0.2.1\lib\net45\FSharpAssemblyInfoUtils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FSharpFilePathUtils">
-      <HintPath>..\..\packages\FSharp.FilePath.Utils.0.2.0\lib\net45\FSharpFilePathUtils.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.FilePath.Utils.0.2.1\lib\net45\FSharpFilePathUtils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FSharpVersionUtils">
-      <HintPath>..\..\packages\FSharp.Version.Utils.0.2.0\lib\net45\FSharpVersionUtils.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.Version.Utils.0.2.1\lib\net45\FSharpVersionUtils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
