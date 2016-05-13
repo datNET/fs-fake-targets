@@ -30,6 +30,7 @@ module Targets =
       WorkingDir : string
       Publish : bool
       AccessKey : string
+      PublishUrl : string
     }
 
   let ConfigDefaults() =
@@ -49,6 +50,7 @@ module Targets =
       WorkingDir = String.Empty
       Publish = false
       AccessKey = String.Empty
+      PublishUrl = String.Empty
     }
 
   let private _EnsureNuspecFileExists filePath =
@@ -70,6 +72,7 @@ module Targets =
             OutputPath = parameters.OutputPath
             WorkingDir = parameters.WorkingDir
             Publish = parameters.Publish
+            PublishUrl = parameters.PublishUrl
             AccessKey = parameters.AccessKey
         })
 
