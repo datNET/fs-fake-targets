@@ -101,7 +101,6 @@ module Targets =
         let run = NUnit (fun p ->
           { p with
               DisableShadowCopy = true
-              ErrorLevel = DontFailBuild
               Framework = dotNET
           })
 
