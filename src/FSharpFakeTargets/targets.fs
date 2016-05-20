@@ -119,6 +119,16 @@ module Targets =
         NuGetPublish (_CreateNuGetParams parameters)
     )
 
+  (*
+    This should be removed as soon as possible. It's a quick and dirty
+    implementation, and is a little buggy...
+  *)
+  module TemporaryShims =
+    let stripPreAndMeta (verStr: string) =
+      match verStr.Split [| '-' ; '+' |] with
+      | [| |] -> raise (new System.FormatException("Invalid version format"))
+      | results -> results.[0]
+
   let private _RootAssemblyInfoVersioningTargets parameters =
     let versionAttributeName = "AssemblyInformationalVersion"
     let assemblyInfoFile = parameters.AssemblyInfoFilePath
@@ -133,7 +143,11 @@ module Targets =
           exit 1
 
       let nextSemVer = incrFn currentSemVer
-      let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
+      let nextFullVer =
+        nextSemVer
+        |> TemporaryShims.stripPreAndMeta
+        |> CoerceStringToFourVersion
+        |> sprintf "%O"
 
       AssemblyInfoFile.UpdateAttributes parameters.AssemblyInfoFilePath
         [|
