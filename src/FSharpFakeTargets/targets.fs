@@ -157,6 +157,14 @@ module Targets =
           _IncrementAssemblyInfo datNET.Version.IncrMajor
       )
 
+    let _setPreReleaseTarget parameters =
+      let targetFn _ =
+        // TODO
+
+        ignore() // <-- remove when finished
+
+      _CreateTarget "SetPrerelease:RootAssemblyInfo" targetFn
+
     parameters
     |> _IncrementPatchTarget
     |> _IncrementMinorTarget
