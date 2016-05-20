@@ -70,7 +70,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="FSharpVersionUtils">
-      <HintPath>..\..\packages\FSharp.Version.Utils.0.2.1\lib\net45\FSharpVersionUtils.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.Version.Utils.0.3.0\lib\net45\FSharpVersionUtils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
