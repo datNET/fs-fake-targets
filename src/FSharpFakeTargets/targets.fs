@@ -171,22 +171,35 @@ module Targets =
           _IncrementAssemblyInfo datNET.Version.IncrMajor
       )
 
-    let _setPreReleaseTarget parameters =
+    let prereleaseTargetHelper preStr =
+      _IncrementAssemblyInfo (fun verStr ->
+        verStr
+        |> datNET.SemVer.parse
+        |> datNET.SemVer.mapPre (fun _ -> preStr)
+        |> datNET.SemVer.stringify
+      )
+
+    let setPreReleaseTarget parameters =
       _CreateTarget "SetPrerelease:RootAssemblyInfo" parameters (fun _ ->
-        let preStr = getBuildParamOrDefault "pre" "alpha"
-        _IncrementAssemblyInfo (fun verStr ->
-          verStr
-          |> datNET.SemVer.parse
-          |> datNET.SemVer.mapPre (fun _ -> Some(preStr))
-          |> datNET.SemVer.stringify
-        )
+        let preStr =
+          match getBuildParam "pre" with
+          | "" -> None
+          | str -> Some str
+
+        prereleaseTargetHelper preStr
+      )
+
+    let unsetPreReleaseTarget parameters =
+      _CreateTarget "UnsetPrerelease:RootAssemblyInfo" parameters (fun _ ->
+        prereleaseTargetHelper None
       )
 
     parameters
     |> _IncrementPatchTarget
     |> _IncrementMinorTarget
     |> _IncrementMajorTarget
-    |> _setPreReleaseTarget
+    |> setPreReleaseTarget
+    |> unsetPreReleaseTarget
 
   let private _VersionTarget parameters =
     _CreateTarget "Version" parameters (fun _ ->
