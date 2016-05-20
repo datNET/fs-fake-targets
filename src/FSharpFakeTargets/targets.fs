@@ -119,6 +119,16 @@ module Targets =
         NuGetPublish (_CreateNuGetParams parameters)
     )
 
+  (*
+    This should be removed as soon as possible. It's a quick and dirty
+    implementation, and is a little buggy...
+  *)
+  module TemporaryShims =
+    let stripPreAndMeta (verStr: string) =
+      match verStr.Split [| '-' ; '+' |] with
+      | [| |] -> raise (new System.FormatException("Invalid version format"))
+      | results -> results.[0]
+
   let private _RootAssemblyInfoVersioningTargets parameters =
     let versionAttributeName = "AssemblyInformationalVersion"
     let assemblyInfoFile = parameters.AssemblyInfoFilePath
@@ -133,7 +143,11 @@ module Targets =
           exit 1
 
       let nextSemVer = incrFn currentSemVer
-      let nextFullVer = (CoerceStringToFourVersion nextSemVer).ToString()
+      let nextFullVer =
+        nextSemVer
+        |> TemporaryShims.stripPreAndMeta
+        |> CoerceStringToFourVersion
+        |> sprintf "%O"
 
       AssemblyInfoFile.UpdateAttributes parameters.AssemblyInfoFilePath
         [|
@@ -157,14 +171,39 @@ module Targets =
           _IncrementAssemblyInfo datNET.Version.IncrMajor
       )
 
+    let prereleaseTargetHelper preStr =
+      _IncrementAssemblyInfo (fun verStr ->
+        verStr
+        |> datNET.SemVer.parse
+        |> datNET.SemVer.mapPre (fun _ -> preStr)
+        |> datNET.SemVer.stringify
+      )
+
+    let setPreReleaseTarget parameters =
+      _CreateTarget "SetPrerelease:RootAssemblyInfo" parameters (fun _ ->
+        let preStr =
+          match getBuildParam "pre" with
+          | "" -> None
+          | str -> Some str
+
+        prereleaseTargetHelper preStr
+      )
+
+    let unsetPreReleaseTarget parameters =
+      _CreateTarget "UnsetPrerelease:RootAssemblyInfo" parameters (fun _ ->
+        prereleaseTargetHelper None
+      )
+
     parameters
     |> _IncrementPatchTarget
     |> _IncrementMinorTarget
     |> _IncrementMajorTarget
+    |> setPreReleaseTarget
+    |> unsetPreReleaseTarget
 
   let private _VersionTarget parameters =
     _CreateTarget "Version" parameters (fun _ ->
-        tracefn "Current Version: %s" (GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath)
+      tracefn "Current Version: %s" (GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath)
     )
 
   let Initialize setParams =
