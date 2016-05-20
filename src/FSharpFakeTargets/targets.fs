@@ -183,7 +183,7 @@ module Targets =
       _CreateTarget "SetPrerelease:RootAssemblyInfo" parameters (fun _ ->
         let preStr =
           match getBuildParam "pre" with
-          | "" -> None
+          | "" -> invalidArg "pre" "Missing required parameter"
           | str -> Some str
 
         prereleaseTargetHelper preStr
