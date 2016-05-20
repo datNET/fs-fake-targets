@@ -158,17 +158,15 @@ module Targets =
       )
 
     let _setPreReleaseTarget parameters =
-      let targetFn _ =
-        // FIXME: not completely sure about this default of "alpha"...
-        let prereleaseString = getBuildParamOrDefault "pre" "alpha"
-
-        _IncrementAssemblyInfo (fun str ->
-          datNET.SemVer.parse str
-          |> datNET.SemVer.mapPre (fun _ -> Some(prereleaseString))
+      _CreateTarget "SetPrerelease:RootAssemblyInfo" parameters (fun _ ->
+        let preStr = getBuildParamOrDefault "pre" "alpha"
+        _IncrementAssemblyInfo (fun verStr ->
+          verStr
+          |> datNET.SemVer.parse
+          |> datNET.SemVer.mapPre (fun _ -> Some(preStr))
           |> datNET.SemVer.stringify
         )
-
-      _CreateTarget "SetPrerelease:RootAssemblyInfo" targetFn
+      )
 
     parameters
     |> _IncrementPatchTarget
@@ -178,7 +176,7 @@ module Targets =
 
   let private _VersionTarget parameters =
     _CreateTarget "Version" parameters (fun _ ->
-        tracefn "Current Version: %s" (GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath)
+      tracefn "Current Version: %s" (GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath)
     )
 
   let Initialize setParams =
