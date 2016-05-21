@@ -14,11 +14,11 @@ module Targets =
 
   type ConfigParams =
     {
-      SolutionFile : FileIncludes
-      MSBuildArtifacts : FileIncludes
-      MSBuildReleaseArtifacts : FileIncludes
+      SolutionFile : string seq
+      MSBuildArtifacts : string seq
+      MSBuildReleaseArtifacts : string seq
       MSBuildOutputDir : string
-      TestAssemblies : FileIncludes
+      TestAssemblies : string seq
       DotNetVersion : string
       NuspecFilePath : Option<string>
       AssemblyInfoFilePath : string
