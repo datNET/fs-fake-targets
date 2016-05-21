@@ -1,7 +1,6 @@
 ﻿namespace datNET
 
 module Targets =
-  open datNET.Version
   open datNET.AssemblyInfo
   open Fake
   open Fake.FileSystem
@@ -10,8 +9,8 @@ module Targets =
   open System
   open System.IO
 
-  let private RootDir = Directory.GetCurrentDirectory()
-  let private AssemblyInfoFilePath = Path.Combine(RootDir, "AssemblyInfo.fs");
+  let private _rootDir = Directory.GetCurrentDirectory()
+  let private _assemblyInfoFilePath = Path.Combine(_rootDir, "AssemblyInfo.fs");
 
   type ConfigParams =
     {
@@ -23,6 +22,7 @@ module Targets =
       DotNetVersion : string
       NuspecFilePath : Option<string>
       AssemblyInfoFilePath : string
+      AssemblyInfoFilePaths : string seq
       Project : string
       Authors : string list
       Description : string
@@ -33,16 +33,17 @@ module Targets =
       PublishUrl : string
     }
 
-  let ConfigDefaults() =
+  let ConfigDefaults () =
     {
-      SolutionFile = !! (Path.Combine(RootDir, "*.sln"))
+      SolutionFile = !! (Path.Combine(_rootDir, "*.sln"))
       MSBuildArtifacts = !! "src/**/bin/**/*.*" ++ "src/**/obj/**/*.*"
       MSBuildReleaseArtifacts = !! "**/bin/Release/*"
       MSBuildOutputDir = "bin"
       TestAssemblies = !! "tests/**/*.Tests.dll" -- "**/obj/**/*.Tests.dll"
       DotNetVersion = "4.0"
       NuspecFilePath = TryFindFirstMatchingFile "*.nuspec" "."
-      AssemblyInfoFilePath = AssemblyInfoFilePath
+      AssemblyInfoFilePath = _assemblyInfoFilePath
+      AssemblyInfoFilePaths = [ _assemblyInfoFilePath ]
       Project = String.Empty
       Authors = List.Empty
       Description = String.Empty
@@ -53,17 +54,17 @@ module Targets =
       PublishUrl = String.Empty
     }
 
-  let private _EnsureNuspecFileExists filePath =
+  let private _ensureNuspecFileExists filePath =
     match filePath with
     | Some x -> x
     | None -> raise (FileNotFoundException("Could not find the nuspec file"))
 
-  let private _CreateTarget targetName parameters targetFunc =
-    Target targetName targetFunc
+  let private _target name func parameters =
+    Target name (fun _ -> func parameters)
     parameters
 
-  let private _CreateNuGetParams parameters =
-    (fun (nugetParams : NuGetParams) ->
+  let private _createNuGetParams parameters =
+    (fun nugetParams ->
         { nugetParams with
             Version = GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath
             Project = parameters.Project
@@ -76,144 +77,156 @@ module Targets =
             AccessKey = parameters.AccessKey
         })
 
-  let private _MSBuildTarget parameters =
-    _CreateTarget "MSBuild" parameters (fun _ ->
-        parameters.SolutionFile
-            |> MSBuildRelease null "Build"
-            |> ignore
+  let private _msBuildTarget = _target "MSBuild" (fun parameters ->
+    parameters.SolutionFile
+      |> MSBuildRelease null "Build"
+      |> ignore
 
-        Copy parameters.MSBuildOutputDir parameters.MSBuildReleaseArtifacts
+    Copy parameters.MSBuildOutputDir parameters.MSBuildReleaseArtifacts
+  )
+
+  let private _cleanTarget = _target "Clean" (fun parameters ->
+    DeleteFiles parameters.MSBuildArtifacts
+    CleanDir parameters.MSBuildOutputDir
+  )
+
+  let private _testTarget = _target "Test" (fun parameters ->
+    let { DotNetVersion = dotNET; TestAssemblies = tests } = parameters
+    let run = NUnit (fun p ->
+      { p with
+          DisableShadowCopy = true
+          Framework = dotNET
+      }
     )
 
-  let private _CleanTarget parameters =
-    _CreateTarget "Clean" parameters (fun _ ->
-        DeleteFiles parameters.MSBuildArtifacts
-        CleanDir parameters.MSBuildOutputDir
-    )
+    run tests
+  )
 
-  let private _TestTarget parameters =
-    _CreateTarget "Test" parameters (fun _ ->
-        let
-          {
-            DotNetVersion = dotNET;
-            TestAssemblies = tests;
-          } = parameters
-        let run = NUnit (fun p ->
-          { p with
-              DisableShadowCopy = true
-              Framework = dotNET
-          })
+  let private _packageTarget = _target "Package" (fun parameters ->
+    parameters.NuspecFilePath
+      |> _ensureNuspecFileExists
+      |> NuGetPack (_createNuGetParams parameters)
+  )
 
-        run tests
-    )
+  let private _publishTarget = _target "Publish" (fun parameters ->
+    parameters
+    |> _createNuGetParams
+    |> NuGetPublish
+  )
 
-  let private _PackageTarget parameters =
-    _CreateTarget "Package" parameters (fun _ ->
-        parameters.NuspecFilePath
-            |> _EnsureNuspecFileExists
-            |> NuGetPack (_CreateNuGetParams parameters)
-    )
+  module VersionTargets =
+    let private _infoAttrName = "AssemblyInformationalVersion"
 
-  let private _PublishTarget parameters =
-    _CreateTarget "Publish" parameters (fun _ ->
-        NuGetPublish (_CreateNuGetParams parameters)
-    )
-
-  (*
-    This should be removed as soon as possible. It's a quick and dirty
-    implementation, and is a little buggy...
-  *)
-  module TemporaryShims =
-    let stripPreAndMeta (verStr: string) =
-      match verStr.Split [| '-' ; '+' |] with
-      | [| |] -> raise (new System.FormatException("Invalid version format"))
-      | results -> results.[0]
-
-  let private _RootAssemblyInfoVersioningTargets parameters =
-    let versionAttributeName = "AssemblyInformationalVersion"
-    let assemblyInfoFile = parameters.AssemblyInfoFilePath
-
-    let _IncrementAssemblyInfo incrFn =
-      let currentSemVer =
-        match (AssemblyInfoFile.GetAttributeValue versionAttributeName parameters.AssemblyInfoFilePath) with
-        | Some v -> v.Trim [|'"'|] // This util returns the string with actual " characters around it, so we have to strip them.
-        | None _ ->
-          let errorMessage = sprintf "Error: missing attribute `%s` in %s" versionAttributeName assemblyInfoFile
+    let private _readVersionString filePath =
+      match (AssemblyInfoFile.GetAttributeValue _infoAttrName filePath) with
+      | Some verStr -> verStr.Trim[| '"' |]
+      | None ->
+          let errorMessage = sprintf "Error: missing attribute `%s` in %s" _infoAttrName filePath
           traceError errorMessage
           exit 1
 
-      let nextSemVer = incrFn currentSemVer
-      let nextFullVer =
-        nextSemVer
-        |> TemporaryShims.stripPreAndMeta
-        |> CoerceStringToFourVersion
+    let private _createVersionAttributes semVer =
+      let sysVer =
+        semVer
+        |> datNET.SemVer.toSystemVersion None
         |> sprintf "%O"
 
-      AssemblyInfoFile.UpdateAttributes parameters.AssemblyInfoFilePath
-        [|
-            AssemblyInfoFile.Attribute.Version nextFullVer ;
-            AssemblyInfoFile.Attribute.FileVersion nextFullVer ;
-            AssemblyInfoFile.Attribute.InformationalVersion nextSemVer ;
-        |]
+      [|
+        AssemblyInfoFile.Attribute.Version              sysVer
+        AssemblyInfoFile.Attribute.FileVersion          sysVer
+        AssemblyInfoFile.Attribute.InformationalVersion (datNET.SemVer.stringify semVer)
+      |]
 
-    let _IncrementPatchTarget parameters =
-      _CreateTarget "IncrementPatch:RootAssemblyInfo" parameters (fun _ ->
-          _IncrementAssemblyInfo datNET.Version.IncrPatch
-      )
+    let private _map fn filePath =
+      _readVersionString filePath
+      |> datNET.SemVer.parse
+      |> fn
+      |> _createVersionAttributes
+      |> AssemblyInfoFile.UpdateAttributes filePath
 
-    let _IncrementMinorTarget parameters =
-      _CreateTarget "IncrementMinor:RootAssemblyInfo" parameters (fun _ ->
-          _IncrementAssemblyInfo datNET.Version.IncrMinor
-      )
+    let getRequiredBuildParam paramName =
+      match (getBuildParam paramName) with
+      | ""         -> invalidArg paramName "Missing required parameter"
+      | paramValue -> Some paramValue
 
-    let _IncrementMajorTarget parameters =
-      _CreateTarget "IncrementMajor:RootAssemblyInfo" parameters (fun _ ->
-          _IncrementAssemblyInfo datNET.Version.IncrMajor
-      )
+    let private _majorFn p =
+      p.AssemblyInfoFilePaths
+      |> Seq.iter (_map datNET.SemVer.incrMajor)
 
-    let prereleaseTargetHelper preStr =
-      _IncrementAssemblyInfo (fun verStr ->
-        verStr
-        |> datNET.SemVer.parse
-        |> datNET.SemVer.mapPre (fun _ -> preStr)
-        |> datNET.SemVer.stringify
-      )
+    let private _minorFn p =
+      p.AssemblyInfoFilePaths
+      |> Seq.iter (_map datNET.SemVer.incrMinor)
 
-    let setPreReleaseTarget parameters =
-      _CreateTarget "SetPrerelease:RootAssemblyInfo" parameters (fun _ ->
-        let preStr =
-          match getBuildParam "pre" with
-          | "" -> invalidArg "pre" "Missing required parameter"
-          | str -> Some str
+    let private _patchFn p =
+      p.AssemblyInfoFilePaths
+      |> Seq.iter (_map datNET.SemVer.incrPatch)
 
-        prereleaseTargetHelper preStr
-      )
+    let private _setPre value = datNET.SemVer.mapPre (fun _ -> value)
 
-    let unsetPreReleaseTarget parameters =
-      _CreateTarget "UnsetPrerelease:RootAssemblyInfo" parameters (fun _ ->
-        prereleaseTargetHelper None
-      )
+    let private _setPreFn p =
+      let pre = getRequiredBuildParam "pre"
+      p.AssemblyInfoFilePaths
+      |> Seq.iter (_map (_setPre pre))
+
+    let private _unsetPreFn p =
+      p.AssemblyInfoFilePaths
+      |> Seq.iter (_map (_setPre None))
+
+    let create parameters =
+      let tName = sprintf "Version:%s"
+      parameters
+      |> _target "Version" (fun p ->
+           p.AssemblyInfoFilePaths
+           |> Seq.iter (fun path ->
+                tracefn "[%s]" path
+                tracefn "Current version: %s" (GetAssemblyInformationalVersionString path)
+              )
+         )
+      |> _target (tName "Major") _majorFn
+      |> _target (tName "Minor") _minorFn
+      |> _target (tName "Patch") _patchFn
+      |> _target (tName "SetPre") _setPreFn
+      |> _target (tName "UnsetPre") _unsetPreFn
+      |> _target (tName "SetMeta") (fun p ->
+           let meta = getRequiredBuildParam "meta"
+           let setMeta = datNET.SemVer.mapMeta (fun _ -> meta)
+
+           p.AssemblyInfoFilePaths |> Seq.iter (_map setMeta)
+         )
+      |> _target (tName "UnsetMeta") (fun p ->
+           let setMeta = datNET.SemVer.mapMeta (fun _ -> None)
+
+           p.AssemblyInfoFilePaths |> Seq.iter (_map setMeta)
+         )
+
+    [<System.ObsoleteAttribute("Prefer datNEt.Targets.VersionTargets module")>]
+    module Deprecated =
+      let deprecated name fn param =
+        let warning = sprintf @"Warning: ""%s"" is depregated" name
+        let targetFn p =
+          traceImportant warning
+          fn param
+        _target name targetFn param
+
+      let create parameters =
+        { parameters with AssemblyInfoFilePaths = [ parameters.AssemblyInfoFilePath ] }
+        |> deprecated "IncrementMajor:RootAssemblyInfo" _majorFn
+        |> deprecated "IncrementMinor:RootAssemblyInfo" _minorFn
+        |> deprecated "IncrementPatch:RootAssemblyInfo" _patchFn
+        |> deprecated "SetPrerelease:RootAssemblyInfo" _setPreFn
+        |> deprecated "UnsetPrerelease:RootAssemblyInfo" _unsetPreFn
+
+  let initialize mapParams =
+    let parameters = ConfigDefaults() |> mapParams
 
     parameters
-    |> _IncrementPatchTarget
-    |> _IncrementMinorTarget
-    |> _IncrementMajorTarget
-    |> setPreReleaseTarget
-    |> unsetPreReleaseTarget
+        |> _msBuildTarget
+        |> _cleanTarget
+        |> _packageTarget
+        |> _testTarget
+        |> _publishTarget
+        |> VersionTargets.create
+        |> VersionTargets.Deprecated.create
 
-  let private _VersionTarget parameters =
-    _CreateTarget "Version" parameters (fun _ ->
-      tracefn "Current Version: %s" (GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath)
-    )
-
-  let Initialize setParams =
-    let parameters = ConfigDefaults() |> setParams
-
-    parameters
-        |> _MSBuildTarget
-        |> _CleanTarget
-        |> _PackageTarget
-        |> _TestTarget
-        |> _PublishTarget
-        |> _RootAssemblyInfoVersioningTargets
-        |> _VersionTarget
+  [<ObsoleteAttribute("Prefer initialize")>]
+  let Initialize = initialize

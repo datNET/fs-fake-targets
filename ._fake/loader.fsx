@@ -11,6 +11,6 @@
   done on the source code for FSharpFakeTargets without having to release or
   anything like that.
 *)
-// #r @"../src/FSharpFakeTargets/bin/Debug/FSharpFakeTargets.dll"
+// #r    @"../src/FSharpFakeTargets/bin/Debug/FSharpFakeTargets.dll"
 
 #load @"config.fsx"
