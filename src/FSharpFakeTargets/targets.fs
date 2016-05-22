@@ -1,7 +1,6 @@
 ﻿namespace datNET
 
 module Targets =
-  open datNET.AssemblyInfo
   open Fake
   open Fake.FileSystem
   open Fake.FileSystemHelper
@@ -11,6 +10,7 @@ module Targets =
 
   let private _rootDir = Directory.GetCurrentDirectory()
   let private _assemblyInfoFilePath = Path.Combine(_rootDir, "AssemblyInfo.fs");
+  let private _infoAttrName = "AssemblyInformationalVersion"
 
   type ConfigParams =
     {
@@ -54,6 +54,14 @@ module Targets =
       PublishUrl = String.Empty
     }
 
+  let private _readVersionString filePath =
+      match (AssemblyInfoFile.GetAttributeValue _infoAttrName filePath) with
+      | Some verStr -> verStr.Trim[| '"' |]
+      | None ->
+          let errorMessage = sprintf "Error: missing attribute `%s` in %s" _infoAttrName filePath
+          traceError errorMessage
+          exit 1
+
   let private _ensureNuspecFileExists filePath =
     match filePath with
     | Some x -> x
@@ -64,10 +72,8 @@ module Targets =
     parameters
 
   let private _createNuGetParams configParams nugetParams =
-    let version = GetAssemblyInformationalVersionString configParams.AssemblyInfoFilePath
-
     { nugetParams with
-        Version     = version
+        Version     = _readVersionString configParams.AssemblyInfoFilePath
         Project     = configParams.Project
         Authors     = configParams.Authors
         Description = configParams.Description
@@ -116,15 +122,6 @@ module Targets =
   )
 
   module VersionTargets =
-    let private _infoAttrName = "AssemblyInformationalVersion"
-
-    let private _readVersionString filePath =
-      match (AssemblyInfoFile.GetAttributeValue _infoAttrName filePath) with
-      | Some verStr -> verStr.Trim[| '"' |]
-      | None ->
-          let errorMessage = sprintf "Error: missing attribute `%s` in %s" _infoAttrName filePath
-          traceError errorMessage
-          exit 1
 
     let private _createVersionAttributes semVer =
       let sysVer =
@@ -180,7 +177,7 @@ module Targets =
            p.AssemblyInfoFilePaths
            |> Seq.iter (fun path ->
                 tracefn "[%s]" path
-                tracefn "Current version: %s" (GetAssemblyInformationalVersionString path)
+                tracefn "Current version: %s" (_readVersionString path)
               )
          )
       |> _target (tName "Major") _majorFn
