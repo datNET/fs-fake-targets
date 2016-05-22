@@ -63,17 +63,19 @@ module Targets =
     Target name (fun _ -> func parameters)
     parameters
 
-  let private _createNuGetParams parameters nugetParams =
+  let private _createNuGetParams configParams nugetParams =
+    let version = GetAssemblyInformationalVersionString configParams.AssemblyInfoFilePath
+
     { nugetParams with
-        Version = GetAssemblyInformationalVersionString parameters.AssemblyInfoFilePath
-        Project = parameters.Project
-        Authors = parameters.Authors
-        Description = parameters.Description
-        OutputPath = parameters.OutputPath
-        WorkingDir = parameters.WorkingDir
-        Publish = parameters.Publish
-        PublishUrl = parameters.PublishUrl
-        AccessKey = parameters.AccessKey
+        Version     = version
+        Project     = configParams.Project
+        Authors     = configParams.Authors
+        Description = configParams.Description
+        OutputPath  = configParams.OutputPath
+        WorkingDir  = configParams.WorkingDir
+        Publish     = configParams.Publish
+        PublishUrl  = configParams.PublishUrl
+        AccessKey   = configParams.AccessKey
     }
 
   let private _msBuildTarget = _target "MSBuild" (fun parameters ->
