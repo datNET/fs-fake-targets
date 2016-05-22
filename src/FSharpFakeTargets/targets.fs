@@ -20,7 +20,7 @@ module Targets =
       MSBuildOutputDir : string
       TestAssemblies : string seq
       DotNetVersion : string
-      NuspecFilePath : Option<string>
+      NuspecFilePath : string option
       AssemblyInfoFilePath : string
       AssemblyInfoFilePaths : string seq
       Project : string
