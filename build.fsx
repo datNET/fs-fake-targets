@@ -15,7 +15,7 @@ let private _OverrideConfig (parameters : datNET.Targets.ConfigParams) =
           AccessKey = Nuget.ApiKey
       }
 
-datNET.Targets.Initialize _OverrideConfig
+datNET.Targets.initialize _OverrideConfig
 
 Target "RestorePackages" (fun _ ->
   Source.SolutionFile
