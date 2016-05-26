@@ -62,10 +62,12 @@ module Targets =
           traceError errorMessage
           exit 1
 
-  let private _ensureNuspecFileExists filePath =
+  let private _ensureNuspecFilepathProvided filePath =
     match filePath with
     | Some x -> x
-    | None -> raise (FileNotFoundException("Could not find the nuspec file"))
+    | None ->
+      let message = "No nuspec file specified in datNET configuration, and automatic detection failed"
+      raise (FileNotFoundException(message))
 
   let private _target name func parameters =
     Target name (fun _ -> func parameters)
@@ -111,7 +113,7 @@ module Targets =
 
   let private _packageTarget = _target "Package" (fun parameters ->
     parameters.NuspecFilePath
-      |> _ensureNuspecFileExists
+      |> _ensureNuspecFilepathProvided
       |> NuGetPack (_createNuGetParams parameters)
   )
 
