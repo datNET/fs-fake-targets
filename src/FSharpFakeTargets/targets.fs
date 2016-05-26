@@ -66,7 +66,8 @@ module Targets =
     match filePath with
     | Some x -> x
     | None ->
-      raise (Exception("No nuspec file specified in datNET configuration"))
+      let message = "No nuspec file specified in datNET configuration, and automatic detection failed"
+      raise (FileNotFoundException(message))
 
   let private _target name func parameters =
     Target name (fun _ -> func parameters)
