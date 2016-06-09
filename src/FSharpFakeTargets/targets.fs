@@ -9,6 +9,7 @@ module Targets =
   open System.IO
 
   let private _rootDir = Directory.GetCurrentDirectory()
+  // FIXME: This is a little presumptious
   let private _assemblyInfoFilePath = Path.Combine(_rootDir, "AssemblyInfo.fs");
   let private _infoAttrName = "AssemblyInformationalVersion"
 
@@ -21,7 +22,6 @@ module Targets =
       TestAssemblies : string seq
       DotNetVersion : string
       NuspecFilePath : string option
-      AssemblyInfoFilePath : string
       AssemblyInfoFilePaths : string seq
       Project : string
       Authors : string list
@@ -42,7 +42,6 @@ module Targets =
       TestAssemblies = !! "tests/**/*.Tests.dll" -- "**/obj/**/*.Tests.dll"
       DotNetVersion = "4.0"
       NuspecFilePath = TryFindFirstMatchingFile "*.nuspec" "."
-      AssemblyInfoFilePath = _assemblyInfoFilePath
       AssemblyInfoFilePaths = [ _assemblyInfoFilePath ]
       Project = String.Empty
       Authors = List.Empty
@@ -74,8 +73,13 @@ module Targets =
     parameters
 
   let private _createNuGetParams configParams nugetParams =
+    let version =
+      configParams.AssemblyInfoFilePaths
+      |> Seq.head
+      |> _readVersionString
+
     { nugetParams with
-        Version     = _readVersionString configParams.AssemblyInfoFilePath
+        Version     = version
         Project     = configParams.Project
         Authors     = configParams.Authors
         Description = configParams.Description
@@ -199,23 +203,6 @@ module Targets =
            p.AssemblyInfoFilePaths |> Seq.iter (_map setMeta)
          )
 
-    [<System.ObsoleteAttribute("Prefer datNEt.Targets.VersionTargets module")>]
-    module Deprecated =
-      let deprecated name fn param =
-        let warning = sprintf @"Warning: ""%s"" is depregated" name
-        let targetFn p =
-          traceImportant warning
-          fn param
-        _target name targetFn param
-
-      let create parameters =
-        { parameters with AssemblyInfoFilePaths = [ parameters.AssemblyInfoFilePath ] }
-        |> deprecated "IncrementMajor:RootAssemblyInfo" _majorFn
-        |> deprecated "IncrementMinor:RootAssemblyInfo" _minorFn
-        |> deprecated "IncrementPatch:RootAssemblyInfo" _patchFn
-        |> deprecated "SetPrerelease:RootAssemblyInfo" _setPreFn
-        |> deprecated "UnsetPrerelease:RootAssemblyInfo" _unsetPreFn
-
   let initialize mapParams =
     let parameters = ConfigDefaults() |> mapParams
 
@@ -226,7 +213,3 @@ module Targets =
         |> _testTarget
         |> _publishTarget
         |> VersionTargets.create
-        |> VersionTargets.Deprecated.create
-
-  [<ObsoleteAttribute("Prefer initialize")>]
-  let Initialize = initialize
