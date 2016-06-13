@@ -9,7 +9,10 @@
     <description>@description@</description>
     <copyright>Copyright datNET 2016</copyright>
   </metadata>
+  <dependencies>
+  </dependencies>
   <files>
+    <!-- TODO: Move these up to dependencies -->
     <file src="FSharpFakeTargets.dll" target="tools" />
     <file src="FSharpFilePathUtils.dll" target="tools" />
     <file src="FSharpVersionUtils.dll" target="tools" />
