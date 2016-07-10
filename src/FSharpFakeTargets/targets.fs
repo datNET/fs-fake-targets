@@ -203,13 +203,16 @@ module Targets =
            p.AssemblyInfoFilePaths |> Seq.iter (_map setMeta)
          )
 
-  let initialize mapParams =
+  let initializeSpecificTargets mapParams (targets: string seq) =
     let parameters = ConfigDefaults() |> mapParams
 
+    // TODO: actually use targets instead of just piping through all targets
     parameters
-        |> _msBuildTarget
-        |> _cleanTarget
-        |> _packageTarget
-        |> _testTarget
-        |> _publishTarget
-        |> VersionTargets.create
+    |> _msBuildTarget
+    |> _cleanTarget
+    |> _packageTarget
+    |> _testTarget
+    |> _publishTarget
+    |> VersionTargets.create
+
+  let initialize mapParams = initializeSpecificTargets mapParams [ "TODO" ]
