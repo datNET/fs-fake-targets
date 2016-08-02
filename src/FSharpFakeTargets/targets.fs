@@ -15,42 +15,42 @@ module Targets =
 
   type ConfigParams =
     {
-      SolutionFile : string seq
-      MSBuildArtifacts : string seq
-      MSBuildReleaseArtifacts : string seq
-      MSBuildOutputDir : string
-      TestAssemblies : string seq
-      DotNetVersion : string
-      NuspecFilePath : string option
-      AssemblyInfoFilePaths : string seq
-      Project : string
-      Authors : string list
-      Description : string
-      OutputPath : string
-      WorkingDir : string
-      Publish : bool
-      AccessKey : string
-      PublishUrl : string
+      SolutionFile:            string seq
+      MSBuildArtifacts:        string seq
+      MSBuildReleaseArtifacts: string seq
+      MSBuildOutputDir:        string
+      TestAssemblies:          string seq
+      DotNetVersion:           string
+      NuspecFilePath:          string option
+      AssemblyInfoFilePaths:   string seq
+      Project:                 string
+      Authors:                 string list
+      Description:             string
+      OutputPath:              string
+      WorkingDir:              string
+      Publish:                 bool
+      AccessKey:               string
+      PublishUrl:              string
     }
 
   let ConfigDefaults () =
     {
-      SolutionFile = !! (Path.Combine(_rootDir, "*.sln"))
-      MSBuildArtifacts = !! "src/**/bin/**/*.*" ++ "src/**/obj/**/*.*"
+      SolutionFile            = !! (Path.Combine(_rootDir, "*.sln"))
+      MSBuildArtifacts        = !! "src/**/bin/**/*.*" ++ "src/**/obj/**/*.*"
       MSBuildReleaseArtifacts = !! "**/bin/Release/*"
-      MSBuildOutputDir = "bin"
-      TestAssemblies = !! "tests/**/*.Tests.dll" -- "**/obj/**/*.Tests.dll"
-      DotNetVersion = "4.0"
-      NuspecFilePath = TryFindFirstMatchingFile "*.nuspec" "."
-      AssemblyInfoFilePaths = [ _assemblyInfoFilePath ]
-      Project = String.Empty
-      Authors = List.Empty
-      Description = String.Empty
-      OutputPath = String.Empty
-      WorkingDir = String.Empty
-      Publish = false
-      AccessKey = String.Empty
-      PublishUrl = String.Empty
+      MSBuildOutputDir        = "bin"
+      TestAssemblies          = !! "tests/**/*.Tests.dll" -- "**/obj/**/*.Tests.dll"
+      DotNetVersion           = "4.0"
+      NuspecFilePath          = TryFindFirstMatchingFile "*.nuspec" "."
+      AssemblyInfoFilePaths   = [ _assemblyInfoFilePath ]
+      Project                 = String.Empty
+      Authors                 = List.Empty
+      Description             = String.Empty
+      OutputPath              = String.Empty
+      WorkingDir              = String.Empty
+      Publish                 = false
+      AccessKey               = String.Empty
+      PublishUrl              = String.Empty
     }
 
   let private _readVersionString filePath =
@@ -92,8 +92,8 @@ module Targets =
 
   let private _msBuildTarget = _target "MSBuild" (fun parameters ->
     parameters.SolutionFile
-      |> MSBuildRelease null "Build"
-      |> ignore
+    |> MSBuildRelease null "Build"
+    |> ignore
 
     Copy parameters.MSBuildOutputDir parameters.MSBuildReleaseArtifacts
   )
@@ -117,8 +117,8 @@ module Targets =
 
   let private _packageTarget = _target "Package" (fun parameters ->
     parameters.NuspecFilePath
-      |> _ensureNuspecFilepathProvided
-      |> NuGetPack (_createNuGetParams parameters)
+    |> _ensureNuspecFilepathProvided
+    |> NuGetPack (_createNuGetParams parameters)
   )
 
   let private _publishTarget = _target "Publish" (fun parameters ->
@@ -207,9 +207,9 @@ module Targets =
     let parameters = ConfigDefaults() |> mapParams
 
     parameters
-        |> _msBuildTarget
-        |> _cleanTarget
-        |> _packageTarget
-        |> _testTarget
-        |> _publishTarget
-        |> VersionTargets.create
+    |> _msBuildTarget
+    |> _cleanTarget
+    |> _packageTarget
+    |> _testTarget
+    |> _publishTarget
+    |> VersionTargets.create
