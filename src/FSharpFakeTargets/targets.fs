@@ -1,6 +1,7 @@
 ﻿namespace datNET
 
 module Targets =
+  open datNET.Validations
   open Fake
   open Fake.FileSystem
   open Fake.FileSystemHelper
@@ -31,6 +32,8 @@ module Targets =
       Publish:                 bool
       AccessKey:               string
       PublishUrl:              string
+      Properties:              List<string * string>
+      ProjectFilePath:         string option
     }
 
   let ConfigDefaults () =
@@ -51,6 +54,8 @@ module Targets =
       Publish                 = false
       AccessKey               = String.Empty
       PublishUrl              = String.Empty
+      Properties              = [ ("Configuration", "Release") ]
+      ProjectFilePath         = None
     }
 
   let private _readVersionString filePath =
@@ -60,13 +65,6 @@ module Targets =
           let errorMessage = sprintf "Error: missing attribute `%s` in %s" _infoAttrName filePath
           traceError errorMessage
           exit 1
-
-  let private _ensureNuspecFilepathProvided filePath =
-    match filePath with
-    | Some x -> x
-    | None ->
-      let message = "No nuspec file specified in datNET configuration, and automatic detection failed"
-      raise (FileNotFoundException(message))
 
   let private _target name func parameters =
     Target name (fun _ -> func parameters)
@@ -115,9 +113,15 @@ module Targets =
     run tests
   )
 
-  let private _packageTarget = _target "Package" (fun parameters ->
+  let private _packageFromProjectTarget = _target "Package:Project" (fun parameters ->
+    parameters.ProjectFilePath
+    |> EnsureConfigPropertyFileExists "Project file"
+    |> NuGetPack (_createNuGetParams parameters)
+  )
+
+  let private _packageFromNuspecTarget = _target "Package:Nuspec" (fun parameters ->
     parameters.NuspecFilePath
-    |> _ensureNuspecFilepathProvided
+    |> EnsureConfigPropertyFileExists "Nuspec file"
     |> NuGetPack (_createNuGetParams parameters)
   )
 
@@ -209,7 +213,8 @@ module Targets =
     parameters
     |> _msBuildTarget
     |> _cleanTarget
-    |> _packageTarget
+    |> _packageFromProjectTarget
+    |> _packageFromNuspecTarget
     |> _testTarget
     |> _publishTarget
     |> VersionTargets.create
