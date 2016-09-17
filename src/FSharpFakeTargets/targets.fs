@@ -70,6 +70,13 @@ module Targets =
     Target name (fun _ -> func parameters)
     parameters
 
+  let private _wrap message wrapper =
+    List.concat [ wrapper; [message]; wrapper ]
+
+  let private _displayWarningMessage message =
+    let emptyLines = [ ""; "" ]
+    traceError ((_wrap message emptyLines) |> String.concat Environment.NewLine)
+
   let private _createNuGetParams configParams nugetParams =
     let version =
       configParams.AssemblyInfoFilePaths
@@ -86,6 +93,7 @@ module Targets =
         Publish     = configParams.Publish
         PublishUrl  = configParams.PublishUrl
         AccessKey   = configParams.AccessKey
+        Properties  = configParams.Properties
     }
 
   let private _msBuildTarget = _target "MSBuild" (fun parameters ->
@@ -119,11 +127,18 @@ module Targets =
     |> NuGetPack (_createNuGetParams parameters)
   )
 
-  let private _packageFromNuspecTarget = _target "Package" (fun parameters ->
-    traceError "Warning: `Package` target will be renamed to `Package:Nuspec` in the next breaking version change."
+  let private _packageFromNuspecTarget = _target "Package:Nuspec" (fun parameters ->
     parameters.NuspecFilePath
     |> EnsureConfigPropertyFileExists "Nuspec file"
     |> NuGetPack (_createNuGetParams parameters)
+  )
+
+  [<Obsolete("Please use `_packageFromNuspecTarget`.")>]
+  let private _obsoletePackageNuspecTarget = _target "Package" (fun parameters ->
+    _displayWarningMessage "Warning: `Package` target will be renamed to `Package:Nuspec` in the next breaking version change."
+    parameters
+    |> _packageFromNuspecTarget
+    |> ignore
   )
 
   let private _publishTarget = _target "Publish" (fun parameters ->
@@ -214,8 +229,8 @@ module Targets =
     parameters
     |> _msBuildTarget
     |> _cleanTarget
+    |> _obsoletePackageNuspecTarget
     |> _packageFromProjectTarget
-    |> _packageFromNuspecTarget
     |> _testTarget
     |> _publishTarget
     |> VersionTargets.create
