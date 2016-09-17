@@ -32,7 +32,7 @@ module Targets =
       Publish:                 bool
       AccessKey:               string
       PublishUrl:              string
-      Properties:              List<string * string>
+      Properties:              (string * string) list
       ProjectFilePath:         string option
     }
 
@@ -119,7 +119,8 @@ module Targets =
     |> NuGetPack (_createNuGetParams parameters)
   )
 
-  let private _packageFromNuspecTarget = _target "Package:Nuspec" (fun parameters ->
+  let private _packageFromNuspecTarget = _target "Package" (fun parameters ->
+    traceError "Warning: `Package` target will be renamed to `Package:Nuspec` in the next breaking version change."
     parameters.NuspecFilePath
     |> EnsureConfigPropertyFileExists "Nuspec file"
     |> NuGetPack (_createNuGetParams parameters)
