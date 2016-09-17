@@ -52,6 +52,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Content Include="packages.config" />
+    <Compile Include="validation.fs" />
     <Compile Include="targets.fs" />
     <Compile Include="..\..\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
