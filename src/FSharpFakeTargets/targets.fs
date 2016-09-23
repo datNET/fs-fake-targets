@@ -14,6 +14,8 @@ module Targets =
   let private _assemblyInfoFilePath = Path.Combine(_rootDir, "AssemblyInfo.fs");
   let private _infoAttrName = "AssemblyInformationalVersion"
 
+  type TestTool = NUnit | XUnit
+
   type ConfigParams =
     {
       SolutionFile:            string seq
@@ -34,6 +36,7 @@ module Targets =
       PublishUrl:              string
       Properties:              (string * string) list
       ProjectFilePath:         string option
+      TestTool:                TestTool
     }
 
   let ConfigDefaults () =
@@ -56,6 +59,7 @@ module Targets =
       PublishUrl              = String.Empty
       Properties              = [ ("Configuration", "Release") ]
       ProjectFilePath         = None
+      TestTool                = NUnit
     }
 
   let private _readVersionString filePath =
@@ -111,7 +115,7 @@ module Targets =
 
   let private _testTarget = _target "Test" (fun parameters ->
     let { DotNetVersion = dotNET; TestAssemblies = tests } = parameters
-    let run = NUnit (fun p ->
+    let run = Fake.NUnitSequential.NUnit (fun p ->
       { p with
           DisableShadowCopy = true
           Framework = dotNET
@@ -119,6 +123,11 @@ module Targets =
     )
 
     run tests
+  )
+
+  let private _xunitTestTarget = _target "Test:XUnit" (fun parameters ->
+    parameters.TestAssemblies
+    |> Fake.Testing.XUnit.xUnit id
   )
 
   let private _packageFromProjectTarget = _target "Package:Project" (fun parameters ->
@@ -226,6 +235,14 @@ module Targets =
            p.AssemblyInfoFilePaths |> Seq.iter (_map setMeta)
          )
 
+  let _determineTestTarget parameters =
+    let testTarget =
+      match parameters.TestTool with
+      | NUnit -> _testTarget
+      | XUnit -> _xunitTestTarget
+
+    testTarget parameters
+
   let initialize mapParams =
     let parameters = ConfigDefaults() |> mapParams
 
@@ -234,6 +251,6 @@ module Targets =
     |> _cleanTarget
     |> _obsoletePackageNuspecTarget
     |> _packageFromProjectTarget
-    |> _testTarget
+    |> _determineTestTarget
     |> _publishTarget
     |> VersionTargets.create
