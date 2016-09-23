@@ -1,6 +1,6 @@
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.25.4)
-    FSharp.FakeTargets (0.8)
-    NuGet.CommandLine (2.8.6)
+    FAKE (4.40)
+    FSharp.FakeTargets (0.10)
+    NuGet.CommandLine (3.4.4-rtm-final)
     NUnit.Runners (2.6.4)
