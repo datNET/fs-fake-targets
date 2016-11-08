@@ -13,7 +13,9 @@ let private _overrideConfig (parameters : datNET.Targets.ConfigParams) =
       OutputPath  = Release.OutputPath
       Publish     = true
       AccessKey   = Nuget.ApiKey
-      ProjectFilePath = Some("src/FSharpFakeTargets/FSharpFakeTargets.fsproj")
+      PublishUrl  = "https://www.nuget.org/api/v2/package"
+      ProjectFilePath = Some("src/FSharpFakeTargets/FSharp.FakeTargets.fsproj")
+      NuspecFilePath = Some("src/FSharpFakeTargets/FSharp.FakeTargets.nuspec")
   }
 
 datNET.Targets.initialize _overrideConfig
@@ -32,8 +34,7 @@ Target "RestorePackages" (fun _ ->
 
 "MSBuild"         <== ["Clean"; "RestorePackages"]
 "Test"            <== ["MSBuild"]
-"Package"         <== ["MSBuild"]
 "Package:Project" <== ["MSBuild"]
-"Publish"         <== ["Package"]
+"Publish"         <== ["Package:Project"]
 
 RunTargetOrDefault "MSBuild"

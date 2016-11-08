@@ -8,10 +8,10 @@ open System.Runtime.InteropServices
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[<assembly: AssemblyTitle("FSharpFakeTargets")>]
+[<assembly: AssemblyTitle("FSharp.FakeTargets")>]
 [<assembly: AssemblyDescription("Basic FAKE targets to get your project up and running ASAP")>]
 [<assembly: AssemblyCompany("datNET")>]
-[<assembly: AssemblyProduct("FSharpFakeTargets")>]
+[<assembly: AssemblyProduct("FSharp.FakeTargets")>]
 [<assembly: AssemblyCopyright("Copyright ©  2016")>]
 [<assembly: NeutralResourcesLanguage("en")>]
 

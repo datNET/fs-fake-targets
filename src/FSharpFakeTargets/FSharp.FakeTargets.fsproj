@@ -7,12 +7,12 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>f8301fbb-8548-40ca-9869-d825fead455b</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>FSharpFakeTargets</RootNamespace>
-    <AssemblyName>FSharpFakeTargets</AssemblyName>
+    <RootNamespace>FSharp.FakeTargets</RootNamespace>
+    <AssemblyName>FSharp.FakeTargets</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>FSharpFakeTargets</Name>
+    <Name>FSharp.FakeTargets</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -23,7 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\FSharpFakeTargets.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.FakeTargets.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,7 +32,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\FSharpFakeTargets.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.FakeTargets.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
