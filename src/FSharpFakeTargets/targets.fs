@@ -113,7 +113,7 @@ module Targets =
     CleanDir parameters.MSBuildOutputDir
   )
 
-  let private _testTarget = _target "Test" (fun parameters ->
+  let private _nuniTestTarget = _target "Test" (fun parameters ->
     let { DotNetVersion = dotNET; TestAssemblies = tests } = parameters
     let run = Fake.NUnitSequential.NUnit (fun p ->
       { p with
@@ -235,10 +235,10 @@ module Targets =
            p.AssemblyInfoFilePaths |> Seq.iter (_map setMeta)
          )
 
-  let _determineTestTarget parameters =
+  let _testTarget parameters =
     let testTarget =
       match parameters.TestTool with
-      | NUnit -> _testTarget
+      | NUnit -> _nuniTestTarget
       | XUnit -> _xunitTestTarget
 
     testTarget parameters
@@ -251,6 +251,6 @@ module Targets =
     |> _cleanTarget
     |> _obsoletePackageNuspecTarget
     |> _packageFromProjectTarget
-    |> _determineTestTarget
+    |> _testTarget
     |> _publishTarget
     |> VersionTargets.create
