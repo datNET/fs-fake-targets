@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpFakeTargets", "src\FSharpFakeTargets\FSharpFakeTargets.fsproj", "{F8301FBB-8548-40CA-9869-D825FEAD455B}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.FakeTargets", "src\FSharpFakeTargets\FSharp.FakeTargets.fsproj", "{F8301FBB-8548-40CA-9869-D825FEAD455B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

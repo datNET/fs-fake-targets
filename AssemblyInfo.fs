@@ -8,10 +8,10 @@ open System.Runtime.InteropServices
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[<assembly: AssemblyTitle("FSharpFakeTargets")>]
+[<assembly: AssemblyTitle("FSharp.FakeTargets")>]
 [<assembly: AssemblyDescription("Basic FAKE targets to get your project up and running ASAP")>]
 [<assembly: AssemblyCompany("datNET")>]
-[<assembly: AssemblyProduct("FSharpFakeTargets")>]
+[<assembly: AssemblyProduct("FSharp.FakeTargets")>]
 [<assembly: AssemblyCopyright("Copyright ©  2016")>]
 [<assembly: NeutralResourcesLanguage("en")>]
 
@@ -33,9 +33,9 @@ open System.Runtime.InteropServices
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [<assembly: AssemblyVersion("1.0.*")>]
-[<assembly: AssemblyVersion("0.10.1.0")>]
-[<assembly: AssemblyFileVersion("0.10.1.0")>]
-[<assembly: AssemblyInformationalVersion("0.10.1")>]
+[<assembly: AssemblyVersion("0.10.2.0")>]
+[<assembly: AssemblyFileVersion("0.10.2.0")>]
+[<assembly: AssemblyInformationalVersion("0.10.2-bravo")>]
 
 do
     ()
