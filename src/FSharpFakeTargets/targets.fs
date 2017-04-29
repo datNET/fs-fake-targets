@@ -233,6 +233,7 @@ module Targets =
     |> _msBuildTarget
     |> _cleanTarget
     |> _obsoletePackageNuspecTarget
+    |> _packageFromNuspecTarget
     |> _packageFromProjectTarget
     |> _testTarget
     |> _publishTarget
