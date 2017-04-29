@@ -132,17 +132,7 @@ module Targets =
     |> EnsureConfigPropertyFileExists "Nuspec file"
     |> NuGetPack (_createNuGetParams parameters)
 
-  let private _packageFromNuspecTarget = _target "Package:Nuspec" (fun parameters ->
-    parameters
-    |> _packFromNuspec
-  )
-
-  [<Obsolete("Please use `_packageFromNuspecTarget`.")>]
-  let private _obsoletePackageNuspecTarget = _target "Package" (fun parameters ->
-    _displayWarningMessage "Warning: `Package` target will be renamed to `Package:Nuspec` in the next breaking version change."
-    parameters
-    |> _packFromNuspec
-  )
+  let private _packageFromNuspecTarget = _target "Package:Nuspec" _packFromNuspec
 
   let private _publishTarget = _target "Publish" (fun parameters ->
     parameters
@@ -232,7 +222,6 @@ module Targets =
     parameters
     |> _msBuildTarget
     |> _cleanTarget
-    |> _obsoletePackageNuspecTarget
     |> _packageFromNuspecTarget
     |> _packageFromProjectTarget
     |> _testTarget

@@ -32,9 +32,9 @@ Target "RestorePackages" (fun _ ->
   )
 )
 
-"MSBuild" <== ["Clean"; "RestorePackages"]
-"Test"    <== ["MSBuild"]
-"Package" <== ["MSBuild"]
-"Publish" <== ["Package"]
+"MSBuild"        <== ["Clean"; "RestorePackages"]
+"Test"           <== ["MSBuild"]
+"Package:Nuspec" <== ["MSBuild"]
+"Publish"        <== ["Package:Nuspec"]
 
 RunTargetOrDefault "MSBuild"
