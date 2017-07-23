@@ -13,7 +13,6 @@ let private _overrideConfig (parameters : datNET.Targets.ConfigParams) =
       OutputPath  = Release.OutputPath
       Publish     = true
       AccessKey   = Nuget.ApiKey
-      PublishUrl  = "https://www.nuget.org/api/v2/package"
       ProjectFilePath = Some("src/FSharpFakeTargets/FSharp.FakeTargets.fsproj")
       NuspecFilePath = Some(Release.Nuspec)
   }
