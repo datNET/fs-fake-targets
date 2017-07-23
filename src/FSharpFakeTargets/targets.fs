@@ -53,7 +53,7 @@ module Targets =
       WorkingDir              = String.Empty
       Publish                 = false
       AccessKey               = String.Empty
-      PublishUrl              = String.Empty
+      PublishUrl              = "https://api.nuget.org/v3/index.json"
       Properties              = [ ("Configuration", "Release") ]
       ProjectFilePath         = None
     }
