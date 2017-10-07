@@ -231,6 +231,8 @@ _Pvt_Extensions
 
 # Paket dependency manager
 ._fake/.paket/paket.exe
+._fake/.paket/Paket.Restore.targets
+._fake/paket-files/paket.restore.cached
 
 # FAKE - F# Make
 .fake/
