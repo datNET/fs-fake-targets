@@ -9,6 +9,9 @@
     <description>@description@</description>
     <projectUrl>https://github.com/datNET/fs-fake-targets</projectUrl>
     <copyright>Copyright datNET 2016</copyright>
+    <dependencies>
+      <dependency id="FAKE" version="(4.0.0,4.60.0]" />
+    </dependencies>
   </metadata>
   <files>
     <file src="FSharp.FakeTargets.dll" target="tools" />
