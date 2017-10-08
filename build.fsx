@@ -4,7 +4,7 @@ open Fake
 open RestorePackageHelper
 open datNET.Fake.Config
 
-let private _overrideConfig (parameters : datNET.Targets.ConfigParams) =
+datNET.Targets.initialize (fun parameters ->
   { parameters with
       Project     = Release.Project
       Authors     = Release.Authors
@@ -16,24 +16,19 @@ let private _overrideConfig (parameters : datNET.Targets.ConfigParams) =
       ProjectFilePath = Some("src/FSharpFakeTargets/FSharp.FakeTargets.fsproj")
       NuspecFilePath = None
   }
+)
 
-datNET.Targets.initialize _overrideConfig
-
-Target "RestorePackages" (fun _ ->
-  Source.SolutionFile
-  |> Seq.head
-  |> RestoreMSSolutionPackages (fun p ->
-      { p with
-          Sources    = ["https://nuget.org/api/v2"]
-          OutputPath = "packages"
-          Retries    = 4
-      }
+Target "Paket:Pack" (fun _ ->
+  Paket.Pack (fun p ->
+    { p with
+        MinimumFromLockFile = true
+        OutputPath          = Release.OutputPath
+    }
   )
 )
 
-"MSBuild"         <== ["Clean"; "RestorePackages"]
-"Test"            <== ["MSBuild"]
-"Package:Project" <== ["MSBuild"]
-"Publish"         <== ["Package:Project"]
+"MSBuild"         <== ["Clean"]
+"Paket:Pack"      <== ["MSBuild"]
+"Publish"         <== ["Paket:Pack"]
 
 RunTargetOrDefault "MSBuild"
