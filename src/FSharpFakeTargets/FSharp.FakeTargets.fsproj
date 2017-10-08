@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FakeLib">
-      <HintPath>..\..\packages\FAKE.4.63.2\tools\FakeLib.dll</HintPath>
+      <HintPath>..\..\packages\FAKE\tools\FakeLib.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
