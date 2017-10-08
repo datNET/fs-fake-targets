@@ -4,7 +4,7 @@ open Fake
 open RestorePackageHelper
 open datNET.Fake.Config
 
-let private _overrideConfig (parameters : datNET.Targets.ConfigParams) =
+datNET.Targets.initialize (fun parameters ->
   { parameters with
       Project     = Release.Project
       Authors     = Release.Authors
@@ -16,8 +16,7 @@ let private _overrideConfig (parameters : datNET.Targets.ConfigParams) =
       ProjectFilePath = Some("src/FSharpFakeTargets/FSharp.FakeTargets.fsproj")
       NuspecFilePath = Some(Release.Nuspec)
   }
-
-datNET.Targets.initialize _overrideConfig
+)
 
 Target "RestorePackages" (fun _ ->
   Source.SolutionFile
@@ -31,9 +30,10 @@ Target "RestorePackages" (fun _ ->
   )
 )
 
-"MSBuild"        <== ["Clean"; "RestorePackages"]
-"Test"           <== ["MSBuild"]
-"Package:Nuspec" <== ["MSBuild"]
-"Publish"        <== ["Package:Nuspec"]
+"MSBuild"               <== ["Clean"; "RestorePackages"]
+"Test"                  <== ["MSBuild"]
+"Package:Nuspec"        <== ["MSBuild"]
+"Package:Project"       <== ["MSBuild"]
+"Publish"               <== ["Package:Project"]
 
 RunTargetOrDefault "MSBuild"
