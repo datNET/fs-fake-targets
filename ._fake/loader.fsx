@@ -1,5 +1,5 @@
-#r    @"packages/FAKE/tools/FakeLib.dll"
-#r    @"packages/FSharp.FakeTargets/tools/FSharp.FakeTargets.dll"
+#r    @"../packages/build/FAKE/tools/FakeLib.dll"
+#r    @"../packages/build/FSharp.FakeTargets/tools/FSharp.FakeTargets.dll"
 (*
   The commented line below is for local testing purposes. Make sure to
 
