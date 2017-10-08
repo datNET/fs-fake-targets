@@ -11,6 +11,5 @@ group Build
   framework: net45
   source https://api.nuget.org/v3/index.json
 
-  nuget FAKE 4.60.0
-  nuget FSharp.FakeTargets 0.11.1
-  nuget NuGet.CommandLine 3.5.0
+  nuget FSharp.FakeTargets
+  nuget NuGet.CommandLine
