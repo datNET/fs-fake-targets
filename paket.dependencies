@@ -1,9 +1,8 @@
-source C:\LocalNuget
-source http://104.130.118.213/nuget
+framework: net45
 source https://api.nuget.org/v3/index.json
 
 nuget FSharp.Core
 nuget NuGet.CommandLine
-nuget FAKE 4.63.2 restriction: >= net45
-nuget FSharp.FilePath.Utils 0.2.1 restriction: >= net45
-nuget FSharp.Version.Utils 0.3.0 restriction: >= net45
+nuget FAKE 4.63.2
+nuget FSharp.FilePath.Utils 0.2.1
+nuget FSharp.Version.Utils 0.3.0
