@@ -6,21 +6,21 @@ open datNET.Fake.Config
 
 datNET.Targets.initialize (fun parameters ->
   { parameters with
-      Project     = Release.Project
-      Authors     = Release.Authors
-      Description = Release.Description
-      WorkingDir  = Release.WorkingDir
-      OutputPath  = Release.OutputPath
-      Publish     = true
-      AccessKey   = Nuget.ApiKey
+      Project         = Release.Project
+      Authors         = Release.Authors
+      Description     = Release.Description
+      WorkingDir      = Release.WorkingDir
+      OutputPath      = Release.OutputPath
+      Publish         = true
+      AccessKey       = Nuget.ApiKey
       ProjectFilePath = Some("src/FSharpFakeTargets/FSharp.FakeTargets.fsproj")
-      NuspecFilePath = None
+      NuspecFilePath  = None
   }
 )
 
 Target "Paket:Pack" (fun _ ->
-  Paket.Pack (fun p ->
-    { p with
+  Paket.Pack (fun parameters ->
+    { parameters with
         MinimumFromLockFile = true
         OutputPath          = Release.OutputPath
     }
