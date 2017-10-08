@@ -6,3 +6,11 @@ NUGET
     FSharp.FilePath.Utils (0.2.1)
     FSharp.Version.Utils (0.3)
     NuGet.CommandLine (4.3)
+
+GROUP Build
+RESTRICTION: == net45
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    FAKE (4.60)
+    FSharp.FakeTargets (0.11.1)
+    NuGet.CommandLine (3.5)
