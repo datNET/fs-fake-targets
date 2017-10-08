@@ -27,8 +27,22 @@ Target "Paket:Pack" (fun _ ->
   )
 )
 
-"MSBuild"         <== ["Clean"]
-"Paket:Pack"      <== ["MSBuild"]
-"Publish"         <== ["Paket:Pack"]
+Target "Deprecate:UsePaket" (fun _ ->
+  failwith <| @"
+
+  Packaging via NuGet will not work in repositories where all dependencies are
+  managed via Paket.
+
+  Please use the `Paket:Pack` FAKE target instead, or use paket directly
+  instead.
+
+  "
+)
+"Package:Project" <== ["Deprecate:UsePaket"]
+"Package:Nuspec"  <== ["Deprecate:UsePaket"]
+
+"MSBuild"    <== ["Clean"]
+"Paket:Pack" <== ["MSBuild"]
+"Publish"    <== ["Paket:Pack"]
 
 RunTargetOrDefault "MSBuild"
