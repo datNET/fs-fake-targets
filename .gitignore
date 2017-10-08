@@ -147,7 +147,7 @@ publish/
 # The packages folder can be ignored because of Package Restore
 **/packages/*
 # except build/, which is used as an MSBuild target.
-!**/packages/build/
+**/packages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/packages/repositories.config
 # NuGet v3's project.json files produces more ignoreable files
@@ -230,9 +230,9 @@ FakesAssemblies/
 _Pvt_Extensions
 
 # Paket dependency manager
-._fake/.paket/paket.exe
-._fake/.paket/Paket.Restore.targets
-._fake/paket-files/paket.restore.cached
+**/.paket/paket.exe
+**/.paket/Paket.Restore.targets
+**/paket-files/paket.restore.cached
 
 # FAKE - F# Make
 .fake/

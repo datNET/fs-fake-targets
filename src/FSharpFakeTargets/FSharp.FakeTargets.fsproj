@@ -51,7 +51,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Content Include="packages.config" />
+    <Content Include="paket.references" />
     <Compile Include="validation.fs" />
     <Compile Include="targets.fs" />
     <Compile Include="..\..\AssemblyInfo.fs">
@@ -60,20 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FakeLib">
-      <HintPath>..\..\packages\FAKE.4.63.2\tools\FakeLib.dll</HintPath>
-    </Reference>
-    <Reference Include="FSharpFilePathUtils">
-      <HintPath>..\..\packages\FSharp.FilePath.Utils.0.2.1\lib\net45\FSharpFilePathUtils.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharpVersionUtils">
-      <HintPath>..\..\packages\FSharp.Version.Utils.0.3.0\lib\net45\FSharpVersionUtils.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\packages\FAKE\tools\FakeLib.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -85,4 +74,38 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\..\.paket\paket.targets" />
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="FSharp.Core">
+          <HintPath>..\..\packages\FSharp.Core\lib\net45\FSharp.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="FSharpFilePathUtils">
+          <HintPath>..\..\packages\FSharp.FilePath.Utils\lib\net45\FSharpFilePathUtils.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="FSharpVersionUtils">
+          <HintPath>..\..\packages\FSharp.Version.Utils\lib\net45\FSharpVersionUtils.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
 </Project>

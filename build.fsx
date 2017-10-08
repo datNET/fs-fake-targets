@@ -4,36 +4,45 @@ open Fake
 open RestorePackageHelper
 open datNET.Fake.Config
 
-let private _overrideConfig (parameters : datNET.Targets.ConfigParams) =
+datNET.Targets.initialize (fun parameters ->
   { parameters with
-      Project     = Release.Project
-      Authors     = Release.Authors
-      Description = Release.Description
-      WorkingDir  = Release.WorkingDir
-      OutputPath  = Release.OutputPath
-      Publish     = true
-      AccessKey   = Nuget.ApiKey
+      Project         = Release.Project
+      Authors         = Release.Authors
+      Description     = Release.Description
+      WorkingDir      = Release.WorkingDir
+      OutputPath      = Release.OutputPath
+      Publish         = true
+      AccessKey       = Nuget.ApiKey
       ProjectFilePath = Some("src/FSharpFakeTargets/FSharp.FakeTargets.fsproj")
-      NuspecFilePath = None
+      NuspecFilePath  = None
   }
+)
 
-datNET.Targets.initialize _overrideConfig
-
-Target "RestorePackages" (fun _ ->
-  Source.SolutionFile
-  |> Seq.head
-  |> RestoreMSSolutionPackages (fun p ->
-      { p with
-          Sources    = ["https://nuget.org/api/v2"]
-          OutputPath = "packages"
-          Retries    = 4
-      }
+Target "Paket:Pack" (fun _ ->
+  Paket.Pack (fun parameters ->
+    { parameters with
+        MinimumFromLockFile = true
+        OutputPath          = Release.OutputPath
+    }
   )
 )
 
-"MSBuild"         <== ["Clean"; "RestorePackages"]
-"Test"            <== ["MSBuild"]
-"Package:Project" <== ["MSBuild"]
-"Publish"         <== ["Package:Project"]
+Target "Deprecate:UsePaket" (fun _ ->
+  failwith <| @"
+
+  Packaging via NuGet will not work in repositories where all dependencies are
+  managed via Paket.
+
+  Please use the `Paket:Pack` FAKE target instead, or use paket directly
+  instead.
+
+  "
+)
+"Package:Project" <== ["Deprecate:UsePaket"]
+"Package:Nuspec"  <== ["Deprecate:UsePaket"]
+
+"MSBuild"    <== ["Clean"]
+"Paket:Pack" <== ["MSBuild"]
+"Publish"    <== ["Paket:Pack"]
 
 RunTargetOrDefault "MSBuild"

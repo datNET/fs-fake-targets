@@ -1,0 +1,14 @@
+framework: net45
+source https://api.nuget.org/v3/index.json
+
+nuget FSharp.Core
+nuget FAKE
+nuget FSharp.FilePath.Utils
+nuget FSharp.Version.Utils
+
+group Build
+  framework: net45
+  source https://api.nuget.org/v3/index.json
+
+  nuget FSharp.FakeTargets
+  nuget NuGet.CommandLine
