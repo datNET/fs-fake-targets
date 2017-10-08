@@ -12,7 +12,7 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyDescription("Basic FAKE targets to get your project up and running ASAP")>]
 [<assembly: AssemblyCompany("datNET")>]
 [<assembly: AssemblyProduct("FSharp.FakeTargets")>]
-[<assembly: AssemblyCopyright("Copyright ©  2016")>]
+[<assembly: AssemblyCopyright("Copyright © 2017")>]
 [<assembly: NeutralResourcesLanguage("en")>]
 
 // Setting ComVisible to false makes the types in this assembly not visible
